@@ -1,0 +1,500 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>员工管理</title>
+    <link href="~/Page/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="~/Page/css/bootstrap-table.min.css" rel="stylesheet" />
+    <link href="~/Page/css/bootstrap-datetimepicker.min.css" rel="stylesheet" />
+    <script src="~/Page/jquery-3.4.1.min.js"></script>
+    <script src="~/Page/bootstrap.min.js"></script>
+    <script src="~/Page/bootstrap-table.min.js"></script>
+    <script src="~/Page/bootstrap-table-zh-CN.min.js"></script>
+    <script src="~/Page/bootstrap-datetimepicker.js"></script>
+    <script src="~/Page/bootstrap-datetimepicker.zh-CN.js"></script>
+</head>
+<body>
+
+
+    <div>
+        <a>姓名</a>
+        <input id="txtRoleName" type="text" value="" />
+
+        <a>部门</a>
+        <select id="selDept" class="selDept">
+            <option value="-1">全部</option>
+        </select>
+
+        <a>角色</a>
+        <select id="selRole" class="selRole">
+            <option value="-1">全部</option>
+        </select>
+
+        <input type="radio" value="1" name="gender" />男
+        <input type="radio" value="0" name="gender" />女
+        <input type="radio" value="-1" name="gender" checked="checked" />全部
+
+        <button id="btnSel" onclick="refresh()" type="button">查询</button>
+        <button id="btnIns" onclick="add_EmpolyInfo()" type="button">添加</button>
+        <br />
+
+        <table id="tableEmpoly" class="table-bordered"></table>
+
+
+        <!-- 模态框（Modal） -->
+        <div class="modal fade" id="Modal_upd" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        <h4 class="modal-title" id="myModalLabel">修改角色</h4>
+                    </div>
+                    <div class="modal-body">
+                        <a>员工编号</a><input type="text" class="form-control" id="empolynum_upd" placeholder="">
+                        <br />
+                        <a>员工姓名</a><input type="text" class="form-control" id="empolyname_upd" placeholder="">
+                        <br />
+                        <a>员工性别</a><input type="radio" name="gender_upd" value="男" checked="checked" />男<input type="radio" name="gender_upd" value="女" />女
+                        <br />
+                        <a>身份证号</a><input type="text" class="form-control" id="empolyidcard_upd" placeholder="">
+                        <br />
+                        <a>所属部门</a><select id="deptid_upd" class="selDept form-control"></select>
+                        <br />
+                        <a>岗位级别</a><select id="empolylevel_upd" class="form-control">
+                            <option value="0">普通员工</option>
+                            <option value="1">部门主管</option>
+                            <option value="2">校区负责人</option>
+                        </select>
+                        <br />
+                        <a>员工角色</a><select id="roleid_upd" class="selRole form-control"></select>
+                        <br />
+                        <a>入职时间</a>
+                        <input type="text" id="inductiondate_upd" name="datetimepicker" value="" placeholder="" class="dtp form-control">
+                        <br />
+                        <a>离职时间</a>
+                        <input type="text" id="departuredate_upd" name="datetimepicker" value="" placeholder="" class="dtp form-control">
+
+                        <br />
+                        <a>备注</a>
+                        <br />
+                        <textarea id="empolyremark_upd"></textarea>
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                        <button type="button" onclick="upd_EmpolyInfo_post()" class="btn btn-primary">更改</button>
+                    </div>
+                </div><!-- /.modal-content -->
+            </div><!-- /.modal -->
+        </div>
+
+
+
+        <!-- 添加模态框（Modal） -->
+        <div class="modal fade" id="Modal_add" tabindex="-2" role="dialog" aria-labelledby="myModalLabel2" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        <h4 class="modal-title" id="myModalLagh./bel2">添加角色</h4>
+                    </div>
+                    <div class="modal-body">
+                        <a>员工编号</a><input type="text" class="form-control" id="empolynum_add" placeholder="">
+                        <br />
+                        <a>员工姓名</a><input type="text" class="form-control" id="empolyname_add" placeholder="">
+                        <br />
+                        <a>员工性别</a><input type="radio" name="gender_add" value="男" checked="checked" />男<input type="radio" name="gender_add" value="女" />女
+                        <br />
+                        <a>身份证号</a><input type="text" class="form-control" id="empolyidcard_add" placeholder="">
+                        <br />
+                        <a>所属部门</a><select id="deptid_add" class="selDept form-control"></select>
+                        <br />
+                        <a>岗位级别</a><select id="empolylevel_add" class="form-control">
+                            <option value="0">普通员工</option>
+                            <option value="1">部门主管</option>
+                            <option value="2">校区负责人</option>
+                        </select>
+                        <br />
+                        <a>员工角色</a><select id="roleid_add" class="selRole form-control"></select>
+                        <br />
+                        <a>入职时间</a>
+                        <input type="text" id="inductiondate_add" name="datetimepicker" value="" placeholder="" class="dtp form-control">
+                        <br />
+                        <a>离职时间</a>
+                        <input type="text" id="departuredate_add" name="datetimepicker" value="" placeholder="" class="dtp form-control">
+                        <br />
+                        <a>备注</a>
+                        <br />
+                        <textarea id="empolyremark_add"></textarea>
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                        <button id="btnAddDept" type="button" onclick="add_RoleInfo_post()" class="btn btn-primary">添加</button>
+                    </div>
+                </div><!-- /.modal-content -->
+            </div><!-- /.modal -->
+        </div>
+
+
+    </div>
+
+
+    <script type="text/javascript">
+        $(function () {
+            $('.dtp').datetimepicker({
+                format: 'YYYY-MM-DD',
+                locale: moment.locale('zh-cn'),
+                defaultDate: null
+            })
+        })
+    </script>
+
+    <script>
+        $(document).ready(function () {
+            $("#tableEmpoly").bootstrapTable({
+                url: "/SchoolManager/Sel_EmpolyInfo",  //请求地址
+                queryParams: function (params) {
+                    //这里的键的名字和控制器的变量名必须一致，这边改动，控制器也需要改成一样的
+                    var temp = {
+                        EmpolyName: $("#txtRoleName").val(),
+                        DeptId: $("#selDept").val(),
+                        RoleId: $("#selRole").val(),
+                        Gender: function () {
+                            var res = $("input[name='gender']:checked").val()
+                            console.log(res);
+                            return res;
+                        }
+                    };
+                    return temp;
+                },
+                striped: true, //是否显示行间隔色
+                pageNumber: 1, //初始化加载第一页
+                pagination: true,//是否分页
+                sidePagination: 'client',//server:服务器端分页|client：前端分页
+                pageSize: 5,//单页记录数
+                pageList: [5, 10],//可选择单页记录数
+                showRefresh: true,//刷新按钮
+                columns: [
+
+                    { title: '编号', field: 'EmpolyId', sortable: true, align: 'center' },
+                    { title: '员工编号', field: 'EmpolyNum', sortable: true, align: 'center' },
+                    { title: '名称', field: 'EmpolyName', sortable: true, align: 'center' },
+                    { title: '性别', field: 'EmpolySex', sortable: true, align: 'center' },
+                    { title: '身份证号码', field: 'EmpolyIdCard', sortable: true, align: 'center' },
+                    { title: '部门', field: 'DeptName', sortable: true, align: 'center' },
+                    {
+                        title: '级别', field: '', sortable: true, align: 'center', formatter: function (value, row, index) {
+                            var res = " ";
+                            //普通员工0，部门主管1，校区负责人2
+                            switch (row['EmpolyLevel']) {
+                                case 0: res = "普通员工"; break;
+                                case 1: res = "部门主管"; break;
+                                case 2: res = "校区负责人"; break;
+                                default:
+                            }
+                            return res;
+
+                        }
+                    },
+                    { title: '角色', field: 'RoleName', sortable: true, align: 'center' },
+                    {
+                        title: '入职日期', field: '', sortable: true, align: 'center', formatter: function (value, row, index) {
+                            return ChangeDateFormat(row['InductionDate']);
+                        }
+                    },
+                    {
+                        title: '离职日期', field: '', sortable: true, align: 'center', formatter: function (value, row, index) {
+                            return ChangeDateFormat(row["DepartureDate"]);
+                        }
+                    },
+                    { title: '备注', field: 'EmpolyReMark', sortable: true, align: 'center' },
+                    {
+                        title: '操作', field: '', align: 'center', formatter: function (value, row, index) {
+                            return '<button type="button" id="btnDel" class="btn btn-default" onclick="del_EmpolyInfo(' + row['EmpolyId'] + ')" >删除</button><button type="button" id="btnEdit" class="btn btn-default" onclick="upd_EmpolyInfo(' + index + ')">编辑</button>';
+                        }
+                    }
+                ]
+            })
+            init();
+        })
+
+        function init() {
+
+            $.ajax({
+                type: "POST",
+                url: "/SchoolManager/Sel_DeptInfo",
+                data: { DeptName: "", CampusID: "-1" },
+                success: function (data) {
+                    $(data).each(function (index, c) {
+                        $(".selDept").append("<option value='" + c.DeptId + "'>" + c.DeptName + "</option>")
+                    });
+                }
+            })
+            $.ajax({
+                type: "POST",
+                url: "/SchoolManager/Sel_RoleInfo",
+                data: { RoleName: "" },
+                success: function (data) {
+                    $(data).each(function (index, c) {
+                        $(".selRole").append("<option value='" + c.RoletId + "'>" + c.RoleName + "</option>")
+                    });
+                }
+            })
+        }
+
+
+        ///////////////////////
+
+        function del_EmpolyInfo(EmpolyId) {
+            if (confirm("确认删除？")) {
+                $.ajax({
+                    type: "POST",
+                    url: "/SchoolManager/Del_EmpolyInfo",
+                    data: { EmpolyId: EmpolyId },
+                    success: function (msg) {
+                        if (msg == -1) {
+                            alert("删除失败!");
+                        }
+                        else {
+                            alert("删除成功！");
+                            refresh();
+                        }
+                    }
+                })
+            }
+        }
+
+        function refresh() {
+            $("#tableEmpoly").bootstrapTable('refresh');
+        }
+
+        function add_EmpolyInfo() {
+            $("#Modal_add").modal("show");
+        }
+
+        function showPopover(obj, msg) {
+            obj.popover({ content: msg });
+            obj.popover("show");
+            setTimeout(function () { obj.popover("destroy") }, 5000);
+        }
+        function borderTurnRed(obj) {
+            obj.css("border-color", "red")
+            setTimeout(function () { obj.css("border-color", "#ccc") }, 5000);
+
+        }
+
+        function add_RoleInfo_post() {
+
+            var passed = true;
+
+            var empolynum = $("#empolynum_add");
+            var empolyname = $("#empolyname_add");
+            var empolycardid = $("#empolyidcard_add");
+            var inductiondate = $("#inductiondate_add");
+
+            var reg = /^[1-9]\d{7}((0\d)|(1[0-2]))(([0|1|2]\d)|3[0-1])\d{3}$|^[1-9]\d{5}[1-9]\d{3}((0\d)|(1[0-2]))(([0|1|2]\d)|3[0-1])\d{3}([0-9]|X)$/;
+            if (!/^[0-9]{6}$/.test(empolynum.val())) {
+                showPopover(empolynum, "fffff")
+                passed = false;
+            }
+            if (empolyname.val() == "") {
+                borderTurnRed(empolyname);
+                passed = false;
+            }
+            if (!reg.test(empolycardid.val())) {
+                showPopover(empolycardid, "fffff")
+                passed = false;
+            }
+            if (inductiondate.val() == "") {
+                borderTurnRed(inductiondate);
+                passed = false;
+            }
+            if (passed) {
+
+
+
+                var obj = {
+                    EmpolyNum: $("#empolynum_add").val(),
+                    EmpolyPwd: "123456",
+                    EmpolyName: $("#empolyname_add").val(),
+                    EmpolySex: $("input[name='gender_add']:checked").val(),
+                    EmpolyIdCard: $("#empolyidcard_add").val(),
+                    EmpolyImg: "#",
+                    DeptId: $("#deptid_add").val(),
+                    EmpolyLevel: $("#empolylevel_add").val(),
+                    RoletId: $("#roleid_add").val(),
+                    InductionDate: $("#inductiondate_add").val(),
+                    DepartureDate: $("#departuredate_add").val(),
+                    EmpolyReMark: $("#empolyremark_add").val(),
+                }
+
+                console.log(obj);
+
+                var RoleName = $("#rolename_add").val();
+                var RoleReMark = $("#roleremark_add").val();
+                $.ajax({
+                    type: "POST",
+                    url: "/SchoolManager/Add_EmpolyInfo",
+                    data: obj,
+                    success: function (msg) {
+                        if (msg > 0) {
+                            alert("添加成功！");
+                            refresh();
+                            $("#Modal_add").modal("hide");
+                        }
+                        else if (msg == -1) {
+                            $("#deptname_add").popover('show')
+                            setTimeout(function () {
+                                $("#deptname_add").popover('destroy')
+                            }, 1500)
+                        }
+                    }
+                })
+            }
+        }
+
+
+        var upd_empolyid = -1;
+        var deptid = 0;
+        var roleid = 0;
+        var empolylevel = 0;
+
+
+        function upd_EmpolyInfo(index) {
+
+            var row = $("#tableEmpoly tbody tr[data-index='" + index + "'] td");
+
+            upd_empolyid = $(row[0]).text();
+            $("#empolynum_upd").val($(row[1]).text());
+            $("#empolyname_upd").val($(row[2]).text());
+            if ($(row[3]).text() == '男') {
+                $("input[name='gender_upd'][value='男']").attr("checked", true);
+            }
+            else {
+                $("input[name='gender_upd'][value='女']").attr("checked", true);
+            }
+
+            $("#empolyidcard_upd").val($(row[4]).text());
+
+            $("#selDept option").each(function (index, c) {
+                if ($(c).text() == $(row[5]).text())
+                    deptid = $(c).val();
+            })
+
+
+            //普通员工0，部门主管1，校区负责人2
+            switch ($(row[6]).text()) {
+                case "普通员工": empolylevel = 0; break;
+                case "部门主管": empolylevel = 1; break;
+                case "校区负责人": empolylevel = 2; break;
+            }
+
+
+            $("#selRole option").each(function (index, c) {
+                if ($(c).text() == $(row[7]).text())
+                    roleid = $(c).val();
+            })
+
+            $("#deptid_upd").val(deptid);
+            $("#empolylevel_upd").val(empolylevel);
+            $("#roleid_upd").val(roleid);
+
+            $("#inductiondate_upd").val($(row[8]).text());
+            $("#departuredate_upd").val($(row[9]).text());
+            $("#empolyremark_upd").val($(row[10]).text());
+
+            $('#Modal_upd').modal('show');
+
+        }
+
+        function upd_EmpolyInfo_post() {
+
+
+            var passed = true;
+
+            var empolynum = $("#empolynum_add");
+            var empolyname = $("#empolyname_add");
+            var empolycardid = $("#empolyidcard_add");
+            var inductiondate = $("#inductiondate_add");
+
+            var reg = /^[1-9]\d{7}((0\d)|(1[0-2]))(([0|1|2]\d)|3[0-1])\d{3}$|^[1-9]\d{5}[1-9]\d{3}((0\d)|(1[0-2]))(([0|1|2]\d)|3[0-1])\d{3}([0-9]|X)$/;
+            if (!/^[0-9]{6}$/.test(empolynum.val())) {
+                showPopover(empolynum, "fffff")
+                passed = false;
+            }
+            if (empolyname.val() == "") {
+                borderTurnRed(empolyname);
+                passed = false;
+            }
+            if (!reg.test(empolycardid.val())) {
+                showPopover(empolycardid, "fffff")
+                passed = false;
+            }
+            if (inductiondate.val() == "") {
+                borderTurnRed(inductiondate);
+                passed = false;
+            }
+            if (passed) {
+
+                var obj = {
+                    EmpolyId: upd_empolyid,
+                    EmpolyNum: $("#empolynum_upd").val(),
+                    EmpolyName: $("#empolyname_upd").val(),
+                    EmpolySex: $("input[name='gender_upd']:checked").val(),
+                    EmpolyIdCard: $("#empolyidcard_upd").val(),
+                    DeptId: $("#deptid_upd").val(),
+                    EmpolyLevel: $("#empolylevel_upd").val(),
+                    RoletId: $("#roleid_upd").val(),
+                    InductionDate: $("#inductiondate_upd").val(),
+                    DepartureDate: $("#departuredate_upd").val(),
+                    EmpolyReMark: $("#empolyremark_upd").val(),
+                }
+                console.log(obj);
+                $.ajax({
+                    type: "POST",
+                    url: "/SchoolManager/Upd_EmpolyInfo",
+                    data: obj,
+                    success: function (msg) {
+                        if (msg == -1) {
+                            alert("修改失败!");
+                        }
+                        else {
+                            alert("修改成功!");
+                        }
+                        $('#Modal_upd').modal('hide');
+                        refresh();
+                    }
+                })
+            }
+        }
+
+
+
+        function ChangeDateFormat(jsondate) {
+            if (jsondate == null) return "-";
+
+            jsondate = jsondate.replace("/Date(", "").replace(")/", "");
+            if (jsondate.indexOf("+") > 0) {
+                jsondate = jsondate.substring(0, jsondate.indexOf("+"));
+            }
+            else if (jsondate.indexOf("-") > 0) {
+                jsondate = jsondate.substring(0, jsondate.indexOf("-"));
+            }
+
+            var date = new Date(parseInt(jsondate, 10));
+            var month = date.getMonth() + 1 < 10 ? "0" + (date.getMonth() + 1) : date.getMonth() + 1;
+            var currentDate = date.getDate() < 10 ? "0" + date.getDate() : date.getDate();
+            return date.getFullYear() + "-" + month + "-" + currentDate;
+        }
+
+
+    </script>
+</body>
+</html>

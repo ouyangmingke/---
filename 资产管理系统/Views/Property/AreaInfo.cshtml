@@ -1,0 +1,257 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>区域管理</title>
+    <link href="~/Page/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="~/Page/css/bootstrap-table.min.css" rel="stylesheet" />
+    <link href="~/Page/css/bootstrap-datetimepicker.min.css" rel="stylesheet" />
+    <script src="~/Page/jquery-3.4.1.min.js"></script>
+    <script src="~/Page/bootstrap.min.js"></script>
+    <script src="~/Page/bootstrap-table.min.js"></script>
+    <script src="~/Page/bootstrap-table-zh-CN.min.js"></script>
+    <script src="~/Page/bootstrap-datetimepicker.js"></script>
+    <script src="~/Page/bootstrap-datetimepicker.zh-CN.js"></script>
+</head>
+<body>
+    <div>
+        <a>区域名称</a>
+        <input id="AreaTypeName" type="text" value="" />
+
+        <a>区域类别名称</a>
+        <select id="selAreaType" class="selAreaType">
+            <option value="-1">全部</option>
+        </select>
+        <button id="btnSel" onclick="refresh()" type="button">查询</button>
+        <button id="btnIns" onclick="add_AreaInfo()" type="button">添加</button>
+        <br />
+
+        <table id="tableArea"></table>
+
+        <!-- 模态框（Modal） -->
+        <div class="modal fade" id="Modal_upd" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        <h4 class="modal-title" id="myModalLabel">修改区域</h4>
+                    </div>
+                    <div class="modal-body">
+
+                        <a>区域名称</a>
+                        <input type="text" class="form-control" id="AreaName_upd" placeholder="">
+                        <br />
+                        <a>区域类别名称</a>
+                        <select id="AreaTypeId_upd" class="selAreaType"></select>
+                        <br />
+                        <a>区域说明</a>
+                        <textarea id="AreaReMark_upd"></textarea>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                        <button type="button" onclick="upd_AreaInfo_post()" class="btn btn-primary">更改</button>
+                    </div>
+                </div><!-- /.modal-content -->
+            </div><!-- /.modal -->
+        </div>
+
+        <!-- 添加模态框（Modal） -->
+        <div class="modal fade" id="Modal_add" tabindex="-2" role="dialog" aria-labelledby="myModalLabel2" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        <h4 class="modal-title" id="myModalLabel">添加区域</h4>
+                    </div>
+                    <div class="modal-body">
+
+                        <a>区域名称</a>
+                        <input type="text" class="form-control" id="AreaName_add" placeholder="">
+                        <br />
+                        <a>区域类别名称</a>
+                        <select id="AreaTypeId_add" class="selAreaType"></select>
+                        <br />
+                        <a>区域说明</a>
+                        <textarea id="AreaReMark_add"></textarea>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                        <button type="button" onclick="add_AreaInfo_post()" class="btn btn-primary">添加</button>
+                    </div>
+                </div><!-- /.modal-content -->
+            </div><!-- /.modal -->
+        </div>
+
+
+    </div>
+
+
+    <script>
+        $(document).ready(function () {
+            $("#tableArea").bootstrapTable({
+                url: "/Property/sel_AreaInfo",  //请求地址
+                queryParams: function (params) {
+                    //这里的键的名字和控制器的变量名必须一致，这边改动，控制器也需要改成一样的
+                    var temp = {
+                        AreaName: $("#AreaTypeName").val(),
+                        AreaTypeId: $("#selAreaType").val()
+                    };
+                    return temp;
+                },
+                striped: true, //是否显示行间隔色
+                pageNumber: 1, //初始化加载第一页
+                pagination: true,//是否分页
+                sidePagination: 'client',//server:服务器端分页|client：前端分页
+                pageSize: 5,//单页记录数
+                pageList: [5, 10],//可选择单页记录数
+                showRefresh: true,//刷新按钮
+                columns: [
+                    { title: '编号', field: 'AreaId', sortable: true, align: 'center' },
+                    { title: '区域名称', field: 'AreaName', sortable: true, align: 'center' },
+                    { title: '区域类别', field: 'AreaTypeName', sortable: true, align: 'center' },
+                    { title: '备注', field: 'AreaReMark', sortable: true, align: 'center' },
+                    {
+                        title: '操作', field: '', align: 'center', formatter: function (value, row, index) {
+                            return '<button type="button" id="btnDel" class="btn btn-default" onclick="del_AreaInfo(' + row['AreaId'] + ')" >删除</button><button type="button" id="btnEdit" class="btn btn-default" onclick="upd_AreaInfo(' + index + ')">编辑</button>';
+                        }
+                    }
+                ]
+            })
+
+
+            sel_AreaTypeInfo();
+
+        })
+
+        function sel_AreaTypeInfo() {
+            $.ajax({
+                type: "POST",
+                url: "/Property/sel_AreaTypeInfo",
+                data: { AreaTypeName:""},
+                success: function (msg) {
+                    $(msg).each(function (index, c) {
+                        $(".selAreaType").append("<option value='" + c.AreaTypeId + "'>" + c.AreaTypeName + "</option>")
+                    })
+                }
+            })
+        }
+
+
+        function del_AreaInfo(AreaId) {
+            if (confirm("确认删除？")) {
+                $.ajax({
+                    type: "POST",
+                    url: "/Property/del_AreaInfo",
+                    data: { AreaId: AreaId },
+                    success: function (msg) {
+                        if (msg == -1) {
+                            alert("删除失败!");
+                        }
+                        else {
+                            alert("删除成功！");
+                            refresh();
+                        }
+                    }
+                })
+            }
+        }
+
+        function refresh() {
+            $("#tableArea").bootstrapTable('refresh');
+        }
+
+        function add_AreaInfo() {
+            $("#Modal_add").modal("show");
+        }
+
+        function add_AreaInfo_post() {
+
+
+            var AreaName = $("#AreaName_add").val();
+            var AreaTypeId = $("#AreaTypeId_add").val();
+            var AreaReMark = $("#AreaReMark_add").val();
+            $.ajax({
+                type: "POST",
+                url: "/Property/add_AreaInfo",
+                data: { AreaName: AreaName, AreaTypeId: AreaTypeId, AreaReMark: AreaReMark },
+                success: function (msg) {
+                    if (msg > 0) {
+                        alert("添加成功！");
+                        refresh();
+                        $("#Modal_add").modal("hide");
+                    }
+                    else {
+                        alert("添加失败！");
+                    }
+                }
+            })
+
+        }
+
+
+        var upd_AreaId = -1;
+
+
+        function upd_AreaInfo(index) {
+
+
+
+
+            var row = $("#tableArea tbody tr[data-index='" + index + "'] td");
+
+            upd_AreaId = $(row[0]).text();
+
+            var AreaName = $(row[1]).text();
+            var AreaTypeName = $(row[2]).text();
+            var opts = $("#selAreaType option");
+            var AreaTypeId = 0;
+            $(opts).each(function (index, c) {
+                if (c.text == AreaTypeName) {
+                    AreaTypeId = $(c).val();
+                }
+            });
+
+            alert(AreaTypeId);
+            var AreaReMark = $(row[3]).text();
+
+            $("#AreaName_upd").val(AreaName);
+            $("#AreaTypeId_upd").val(AreaTypeId);
+            $("#AreaReMark_upd").val(AreaReMark);
+
+            $('#Modal_upd').modal('show');
+        }
+
+        function upd_AreaInfo_post() {
+
+            var AreaName = $("#AreaName_upd").val();
+            var AreaTypeId = $("#AreaTypeId_upd").val();
+            var AreaReMark = $("#AreaReMark_upd").val();
+
+            $.ajax({
+                type: "POST",
+                url: "/Property/upd_AreaInfo",
+                //deptname_upd  selCampus_upd   deptremark_upd
+                data: {
+                    AreaId: upd_AreaId, AreaTypeId: AreaTypeId, AreaName: AreaName, AreaReMark: AreaReMark},
+                success: function (msg) {
+                    if (msg == -1) {
+                        alert("修改失败!");
+                    }
+                    else {
+                        alert("修改成功!");
+                    }
+                    $('#Modal_upd').modal('hide');
+                    refresh();
+                }
+            })
+        }
+
+    </script>
+</body>
+</html>

@@ -1,0 +1,202 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>校区管理</title>
+    <link href="~/Page/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="~/Page/css/bootstrap-table.min.css" rel="stylesheet" />
+    <link href="~/Page/css/bootstrap-datetimepicker.min.css" rel="stylesheet" />
+    <script src="~/Page/jquery-3.4.1.min.js"></script>
+    <script src="~/Page/bootstrap.min.js"></script>
+    <script src="~/Page/bootstrap-table.min.js"></script>
+    <script src="~/Page/bootstrap-table-zh-CN.min.js"></script>
+    <script src="~/Page/bootstrap-datetimepicker.js"></script>
+    <script src="~/Page/bootstrap-datetimepicker.zh-CN.js"></script>
+</head>
+<body>
+    <div>
+        <a>校区名称</a>
+        <input id="txtDept" type="text" />
+        <button id="btnSel" onclick="sel_CampusInfo_like()" type="button">查询</button>
+        <button id="btnIns" onclick="add_CampusInfo()" type="button">添加</button>
+        <button id="btnImport" type="button">导入数据</button>
+
+        <br />
+
+        <table id="tableCampus"></table>
+
+
+        <!-- 模态框（Modal） -->
+        <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        <h4 class="modal-title" id="myModalLabel">修改校区</h4>
+                    </div>
+                    <div class="modal-body">
+
+                        <a>校区名称</a>
+                        <input type="text" class="form-control" id="campusName" placeholder="">
+                        <br />
+                        <a>校区说明</a>
+                        <input type="text" class="form-control" id="campusRemark" placeholder="">
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                        <button type="button" onclick="upd_CampusInfo_post()" class="btn btn-primary">更改</button>
+                    </div>
+                </div><!-- /.modal-content -->
+            </div><!-- /.modal -->
+        </div>
+
+        <!-- 添加模态框（Modal） -->
+        <div class="modal fade" id="myModal2" tabindex="-2" role="dialog" aria-labelledby="myModalLabel2" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        <h4 class="modal-title" id="myModalLabel2">添加校区</h4>
+                    </div>
+                    <div class="modal-body">
+
+                        <a>校区名称</a>
+                        <input type="text" class="form-control" id="campusName2" placeholder="">
+                        <br />
+                        <a>校区说明</a>
+                        <input type="text" class="form-control" id="campusRemark2" placeholder="">
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                        <button type="button" onclick="add_CampusInfo_post()" class="btn btn-primary">添加</button>
+                    </div>
+                </div><!-- /.modal-content -->
+            </div><!-- /.modal -->
+        </div>
+    </div>
+
+
+    <script>
+        $(document).ready(function () {
+            $("#tableCampus").bootstrapTable({
+                url: "/SchoolManager/sel_CampusInfo",  //请求地址
+                queryParams: function (params) {
+                    var temp = {
+                        namelike: $("#txtDept").val()
+                    };
+                    return temp;
+                },
+                striped: true, //是否显示行间隔色
+                pageNumber: 1, //初始化加载第一页
+                pagination: true,//是否分页
+                sidePagination: 'client',//server:服务器端分页|client：前端分页
+                pageSize: 5,//单页记录数
+                pageList: [5, 10],//可选择单页记录数
+                showRefresh: true,//刷新按钮
+                columns: [
+                    { title: '编号', field: 'CampusId', sortable: true, align: 'center' },
+                    { title: '校区名称', field: 'CampusName', sortable: true, align: 'center' },
+                    { title: '备注', field: 'CampusReMark', sortable: true, align: 'center' },
+                    {title: '操作', field: '', align: 'center', formatter: function (value, row, index) {
+                            return '<button type="button" id="btnDel" class="btn btn-default" onclick="del_CampusInfo(' + row['CampusId'] + ')" >删除</button><button type="button" id="btnEdit" class="btn btn-default" onclick="upd_CampusInfo(' + index + ')">编辑</button>';
+                        }
+                    }
+                ]
+            })
+        })
+
+
+        function del_CampusInfo(CampusID) {
+            if (confirm("确认删除？" + CampusID)) {
+                $.ajax({
+                    type: "POST",
+                    url: "/SchoolManager/del_CampusInfo_byID",
+                    data: { CampusID: CampusID },
+                    success: function (msg) {
+                        if (msg == -1) {
+                            alert("删除失败!请先删除此校区的部门");
+                        }
+                        else {
+                            alert("删除成功！");
+                            $("#tableCampus").bootstrapTable('refresh');
+                        }
+
+                    }
+                })
+            }
+        }
+
+        function sel_CampusInfo_like() {
+            var namelike = $("#txtDept").val();
+            $("#tableCampus").bootstrapTable('refresh', { url: "/SchoolManager/sel_CampusInfo", silent: false, query: { namelike: namelike } } );
+        }
+
+
+
+        function add_CampusInfo() {
+            $("#myModal2").modal("show");
+        }
+
+        function add_CampusInfo_post() {
+            var campusname = $("#campusName2").val();
+            var campusremark = $("#campusRemark2").val();
+
+            $.ajax({
+                type: "POST",
+                url: "/SchoolManager/add_CampusInfo",
+                data: { name:campusname, remark:campusremark },
+                success: function (msg) {
+                    if (msg > 0) {
+                        alert("添加成功！");
+                    }
+                    $("#tableCampus").bootstrapTable('refresh');
+                }
+            })
+
+        }
+
+        function imp_CampusInfo() {
+
+        }
+
+        var campusID;
+        var campusName;
+        var campusRemark;
+
+        function upd_CampusInfo(index) {
+            var tr = $("#tableCampus tr").eq(index + 1);
+            campusID = tr.children().eq(0).text();
+            campusName = tr.children().eq(1).text();
+            campusRemark = tr.children().eq(2).text();
+            $("#campusName").val(campusName);
+            $("#campusRemark").val(campusRemark);
+            $('#myModal').modal('show');
+        }
+
+        function upd_CampusInfo_post() {
+            $.ajax({
+                type: "POST",
+                url: "/SchoolManager/upd_CampusInfo",
+                data: { id: campusID, name: $("#campusName").val(), remark: $("#campusRemark").val() },
+                success: function (msg) {
+                    if (msg == -1) {
+                        alert("修改失败!");
+                    }
+                    else {
+                        alert("修改成功!");
+                    }
+                    $('#myModal').modal('hide');
+                    $("#tableCampus").bootstrapTable('refresh');
+                }
+            })
+        }
+
+    </script>
+</body>
+</html>

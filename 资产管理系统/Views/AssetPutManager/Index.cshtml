@@ -1,0 +1,409 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>资产入库管理</title>
+    <link href="~/Page/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="~/Page/css/bootstrap-table.min.css" rel="stylesheet" />
+    <link href="~/Page/css/bootstrap-datetimepicker.min.css" rel="stylesheet" />
+    <script src="~/Page/jquery-3.4.1.min.js"></script>
+    <script src="~/Page/bootstrap-table.min.js"></script>
+    <script src="~/Page/bootstrap-table-zh-CN.min.js"></script>
+    <script src="~/Page/bootstrap-datetimepicker.js"></script>
+    <script src="~/Page/bootstrap.min.js"></script>
+    <script src="~/Page/bootstrap-datetimepicker.zh-CN.js"></script>
+    <script src="~/Page/Public_scripts.js"></script>
+
+    <style type="text/css">
+        .xx {
+            width: 200px;
+        }
+
+        .pull-right {
+            float: right;
+        }
+
+        .pull-left {
+            float: left;
+        }
+    </style>
+
+</head>
+<body>
+    <div class="container-fluid mt-3">
+        <div style="margin:10px">
+            资产名称
+            <input id="txtputname" class="form-control" style="width:200px;display:inline" />
+            入库人员
+            <input type="text"  id="txtname" class="xx form-control" style="width:200px;display:inline" placeholder="请输入入库人员姓名" />
+
+            <span class="input-group-text bg-white border-0">资产类别</span>
+            <select class="custom-select" id="dropputtype">
+                <option selected value="0">---全部---</option>
+                <option value="1">固定资产</option>
+                <option value="2">办公用品</option>
+            </select>
+
+
+            <button type="button" class="btn btn-primary ml-3 mr-3" onclick="SelPut()">查询</button>
+            <button type="button" class="btn btn-primary"  data-toggle="modal" data-target="#myModal" onclick="InsertPut()">资产入库</button>
+        </div>
+        <div class="input-group mb-3">
+
+
+        </div>
+
+        <table class="tab"></table>
+
+
+    </div>
+
+    <!-- 添加修改模态框 -->
+
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="titlels">资产入库</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+
+                    <div class="input-group mb-3">
+                        <div class="input-group-prepend">
+                            <label class="input-group-text border-0 bg-white">资产类别</label>
+                        </div>
+                        <select class="custom-select form-control" id="droptypeid" onchange="dropnamechange()">
+                            <option value="1" selected>固定资产</option>
+                            <option value="2">办公用品</option>
+                        </select>
+                    </div>
+
+                    <div class="input-group mb-3">
+                        <div class="input-group-prepend">
+                            <label class="input-group-text border-0 bg-white">资产名称</label>
+                        </div>
+                        <select class="custom-select form-control" id="droptypename">
+                        </select>
+                    </div>
+
+                    <div class="input-group flex-nowrap mb-3">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text border-0 bg-white">入库数量</span>
+                        </div>
+                        <input type="text" class="form-control" id="txtputnum" placeholder="请输入入库数量" />
+                    </div>
+
+                    <div class="input-group flex-nowrap mb-3">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text border-0 bg-white">入库时间</span>
+                        </div>
+                        <input type="datetime" class="form-control" id="txtputtime" placeholder="请选择入库时间" />
+                    </div>
+
+                    <div class="input-group mb-3">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text border-0 bg-white">资产说明</span>
+                        </div>
+                        <textarea class="form-control" aria-label="With textarea" id="txtputmark" placeholder="请输入备注"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">关闭</button>
+                    <button type="button" class="btn btn-primary" id="add" onclick="AddPut()">添加</button>
+                    <button type="button" class="btn btn-primary" id="update"  onclick="Update()">修改</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
+<script type="text/javascript">
+    $(function () {
+        PutmanagerPage();
+        BindDate();
+        $("#droptypename  option").remove();
+        var str = "";
+        $.ajax({
+            type: "get",
+            url: "/AssetPutManager/dropnamechange",
+            data: { droptypeid: $("#droptypeid").val() },
+            success: function (msg) {
+                //  alert(msg);
+                $.each(msg, function (index, c) {
+                    $("#droptypename").append("<option value='" + c.AssetId + "'>" + c.AssetName + "</option>");
+                })
+            }
+        });
+    })
+    //资产入库分页
+    function PutmanagerPage() {
+        $(".tab").bootstrapTable({
+            url: "/AssetPutManager/PutmanagerPage",//请求服务器数据地址
+            cache: true,//禁用ajax数据缓存
+            pagination: true,//打开分页
+            pageList: [5, 10, 15, 20, 30],//设置分页每页显示的行数
+            pageNumber: 1,//默认显示页码数
+            pageSize: 5,//默认设置显示行数
+            striped: true,//设置隔行变色
+            sidePagination: "server",           //分页方式：client客户端分页，server服务端分页（*）
+
+
+            queryParams: function (parms) {
+                // 前台向后台传递参数   //参数列表
+                var temp = { //键值对格式，一般处理程序中，如果要取值一定要与键的名称相同
+                    //页面大小
+                    limit: parms.limit, //每页显示的数量
+                    //需要跳过的数量
+                    offset: parms.offset,// SQL语句起始索引
+                    name: $("#txtname").val(),
+                    putname: $("#txtputname").val(),
+                    puttype: $("#dropputtype").val()
+                };
+                return temp;
+            },
+            columns: [
+                //select c.AssetName, c.AssetTypeID, a.AssetNum, b.EmpolyName, a.AssetPutDate, a.AssetPutReMark from AssetPutInfo a, EmpolyInfo
+                //b, AssetInfo c where a.EmpolyId= b.EmpolyId and a.AssetId= c.AssetId
+                { checkbox: true },
+                //field:后台绑定数据的字段名   title 表格标题
+                {
+                    field: '', title: '编号', align: 'center',
+                    formatter: function (value, row, index) {
+                        return index + 1;
+                    }
+                },
+                { field: 'AssetName', title: '资产名称', align: 'center' },
+                { field: 'AssetId', title: '资产编号', visible: false },
+                { field: 'AssetPutID', title: '资产入库编号', visible: false },
+                {
+                    field: 'AssetTypeID', title: '资产类别名称', align: 'center',
+                    formatter: function (value, row, index) {
+                        if (value == 1) {
+                            return value = "固定资产";
+                        } else {
+                            return value = "办公用品";
+                        }
+
+                    }
+                },
+                { field: 'AssetNum', title: '入库数量', align: 'center' },
+                { field: 'EmpolyName', title: '入库人员', align: 'center' },
+                {
+                    field: 'AssetPutDate', title: '入库时间', align: 'center',
+                    formatter: function (value, row, index) {
+                        return GetTime(value);
+                    }
+                },
+
+                {
+                    field: 'AssetPutReMark', title: '备注', align: 'center',
+                    formatter: function (value, row, index) {
+                        if (value == "") {
+                            return value = 'null';
+                        }
+                    }
+                },
+                {
+                    field: '', title: '操作', align: 'center', formatter: function (vaule, row, index) {
+
+                        return '<button type="button" id="btnEdit" class="btn btn-danger btn-xs" data-toggle="modal" data-target="#myModal" onclick="Edit(' + index + ')">修改</button> ';
+                    }
+                },
+            ]
+        })
+
+    }
+    //查询
+    function SelPut() {
+        $(".tab").bootstrapTable("refresh");
+        $("#txtname").val("");
+        $("#txtputname").val(""),
+            $("#dropputtype").val(0)
+    }
+    //打开添加模态框
+    function InsertPut() {
+        $("#exampleModal").modal("show");
+        $("#titlels").text("资产入库");
+        $("#update").hide();
+        $("#add").show();
+        $("#txtputnum").val("");
+        $("#txtputtime").val("");
+        $("#txtputmark").val("");
+        $("#droptypeid").val(1);
+
+    }
+    //打开修改模态框
+    var type;
+    var id;
+    function Edit(index) {
+        debugger;
+
+        $("#exampleModal").modal("show");
+        $("#titlels").text("修改资产");
+        $("#update").show();
+        $("#add").hide();
+        var date = $(".tab").bootstrapTable("getData")[index];
+        $("#droptypeid").val(date.AssetTypeID);
+
+        $("#txtputnum").val(date.AssetNum);
+        $("#txtputtime").val(GetTime(date.AssetPutDate));
+        if (date.AssetPutReMark == 'null') {
+            $("#txtputmark").val("");
+        }
+        $("#droptypename  option").remove();
+        var str = "";
+        id = date.AssetPutID;
+        type = date.AssetId;
+        dropnamechange();
+
+    }
+
+    //二级联动
+    function dropnamechange() {
+        $("#droptypename  option").remove();
+        var str = "";
+        $.ajax({
+            type: "get",
+            url: "/AssetPutManager/dropnamechange",
+            data: { droptypeid: $("#droptypeid").val() },
+            success: function (msg) {
+                //  alert(msg);
+                $.each(msg, function (index, c) {
+                    if (type == c.AssetId) {
+                        $("#droptypename").append("<option selected value='" + c.AssetId + "'>" + c.AssetName + "</option>");
+
+                    }
+                    else {
+                        $("#droptypename").append("<option  value='" + c.AssetId + "'>" + c.AssetName + "</option>");
+                    }
+                })
+            }
+        });
+
+    }
+    //资产入库添加
+    function AddPut() {
+
+        var AssetId = $("#droptypename").val();
+        if (AssetId.length == 0) {
+            alert("请选择资产类别和资产名称");
+            return;
+        }
+        var AssetNum = $("#txtputnum").val();
+        if (AssetNum.length == 0) {
+            alert("请输入入库的数量");
+            return;
+        }
+        var AssetPutDate = $("#txtputtime").val();
+        if (AssetPutDate.length == 0) {
+            alert("请选择入库的时间");
+            return;
+        }
+        var AssetPutReMark = $("#txtputmark").val();
+        var data = {
+            AssetId: AssetId,
+            AssetNum: AssetNum,
+            AssetPutDate: AssetPutDate,
+            AssetPutReMark: AssetPutReMark,
+        }
+        $.ajax({
+            type: "get",
+            url: "/AssetPutManager/Addput",
+            data: data,
+            success: function (msg) {
+                if (msg > 0) {
+                    alert("添加成功");
+                    $("#exampleModal").modal("hide");
+                    $(".tab").bootstrapTable("refresh");
+                } else {
+                    alert("添加失败");
+                }
+            }
+        });
+
+
+    }
+
+
+    //资产修改
+    function Update() {
+
+        var AssetId = $("#droptypename").val();
+        if (AssetId.length == 0) {
+            alert("请选择资产类别和资产名称");
+            return;
+        }
+        var AssetNum = $("#txtputnum").val();
+        if (AssetNum.length == 0) {
+            alert("请输入入库的数量");
+            return;
+        }
+        var AssetPutDate = $("#txtputtime").val();
+        if (AssetPutDate.length == 0) {
+            alert("请选择入库的时间");
+            return;
+        }
+        var AssetPutReMark = $("#txtputmark").val();
+        var data = {
+            AssetId: AssetId,
+            AssetNum: AssetNum,
+            AssetPutDate: AssetPutDate,
+            AssetPutReMark: AssetPutReMark,
+            AssetPutID: id
+        }
+        $.ajax({
+            type: "get",
+            url: "/AssetPutManager/Updateput",
+            data: data,
+            success: function (msg) {
+                if (msg > 0) {
+                    alert("修改成功");
+                    $("#exampleModal").modal("hide");
+                    $(".tab").bootstrapTable("refresh");
+                } else {
+                    alert("修改失败");
+                }
+            }
+        });
+
+
+    }
+    //时间类型转换
+    function GetTime(value) {
+        var date = new Date(parseInt(value.replace("/Date(", "").replace(")/", ""), 10));
+        return date.toLocaleDateString();
+    }
+
+    //日期绑定
+    function BindDate() {
+
+        $('input[type="datetime"]').datetimepicker({
+            format: 'yyyy-mm-dd',  //显示格式可为yyyymm/yyyy-mm-dd/yyyy.mm.dd
+            weekStart: 1,  	//0-周日,6-周六 。默认为0
+            autoclose: true,
+            startView: 2,  	//打开时显示的视图。0-'hour' 1-'day' 2-'month' 3-'year' 4-'decade'
+            minView: 2,  	//最小时间视图。默认0-'hour'
+            maxView: 4, 	//最大时间视图。默认4-'decade'
+            todayBtn: true, 	//true时"今天"按钮仅仅将视图转到当天的日期。如果是'linked'，当天日期将会被选中。
+            todayHighlight: true,	//默认值: false,如果为true, 高亮当前日期。
+            initialDate: new Date(),	//初始化日期.默认new Date()当前日期
+            forceParse: false,  	//当输入非格式化日期时，强制格式化。默认true
+            bootcssVer: 3,	//显示向左向右的箭头
+            language: 'zh-CN', //语言,
+            clearBtn: true//清除按钮
+        });
+    }
+
+
+</script>

@@ -1,0 +1,511 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<!--[if IE 8]> <html lang="en" class="ie8"> <![endif]-->
+<!--[if !IE]><!-->
+<html lang="en">
+<!--<![endif]-->
+<head>
+    <meta charset="utf-8" />
+    <title>资产管理系统</title>
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+          name="viewport" />
+    <meta content="" name="description" />
+    <meta content="" name="author" />
+    <!-- ================== BEGIN BASE CSS STYLE ================== -->
+    <link href="~/assets/plugins/jquery-ui/themes/base/minified/jquery-ui.min.css" rel="stylesheet" />
+    <link href="~/assets/plugins/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="~/assets/plugins/font-awesome/css/font-awesome.min.css" rel="stylesheet" />
+    <link href="~/assets/css/animate.min.css" rel="stylesheet" />
+    <link href="~/assets/css/style.min.css" rel="stylesheet" />
+    <link href="~/assets/css/style-responsive.min.css" rel="stylesheet" />
+    <link href="~/assets/css/theme/default.css" rel="stylesheet" id="theme" />
+    <!-- ================== END BASE CSS STYLE ================== -->
+    <!-- ================== BEGIN PAGE LEVEL CSS STYLE ================== -->
+    <link href="~/assets/plugins/jquery-jvectormap/jquery-jvectormap-1.2.2.css" rel="stylesheet" />
+    <link href="~/assets/plugins/bootstrap-calendar/css/bootstrap_calendar.css" rel="stylesheet" />
+    <link href="~/assets/plugins/gritter/css/jquery.gritter.css" rel="stylesheet" />
+    <link href="~/assets/plugins/morris/morris.css" rel="stylesheet" />
+    <!-- ================== END PAGE LEVEL CSS STYLE ================== -->
+    <!-- ================== BEGIN BASE JS ================== -->
+
+    <script src="~/assets/plugins/pace/pace.min.js"></script>
+    <script src="~/Page/jquery-3.4.1.min.js"></script>
+    <!-- ================== END BASE JS ================== -->
+</head>
+<body>
+
+    <!-- begin #page-loader -->
+    <div id="page-loader" class="fade in">
+        <span class="spinner"></span>
+    </div>
+    <!-- end #page-loader -->
+    <!-- begin #page-container -->
+    <div id="page-container" class="fade page-sidebar-fixed page-header-fixed">
+        <!-- begin #header -->
+        <div id="header" class="header navbar navbar-default navbar-fixed-top">
+            <!-- begin container-fluid -->
+            <div class="container-fluid">
+                <!-- begin mobile sidebar expand / collapse button -->
+                <div class="navbar-header">
+                    <a href="#" class="navbar-brand"><span class="navbar-logo"></span>资源管理系统</a>
+                    <button type="button" class="navbar-toggle" data-click="sidebar-toggled">
+                        <span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar">
+                        </span>
+                    </button>
+                </div>
+                <!-- end mobile sidebar expand / collapse button -->
+                <!-- begin header navigation right -->
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <form class="navbar-form full-width">
+                            <div class="form-group">
+                                <input type="text" class="form-control" placeholder="搜索" />
+                                <button type="submit" class="btn btn-search">
+                                    <i class="fa fa-search"></i>
+                                </button>
+                            </div>
+                        </form>
+                    </li>
+                    <li class="dropdown navbar-user">
+                        <a href="javascript:;" class="dropdown-toggle" data-toggle="dropdown">
+                            <img src="~/assets/img/user-13.jpg" alt="" />
+                            <span class="hidden-xs RoleName"></span> <b class="caret"></b>
+                        </a>
+                        <ul class="dropdown-menu animated fadeInLeft">
+                            <li class="arrow"></li>
+                            <li><a data-toggle="modal" data-target="#PersonInfo">个人信息</a></li>
+                            <li><a data-toggle="modal" data-target="#PersonPwd">修改密码</a></li>
+                            <li><a onclick="Escape()">退出</a></li>
+                        </ul>
+                    </li>
+                </ul>
+                <!-- end header navigation right -->
+            </div>
+            <!-- end container-fluid -->
+        </div>
+        <!-- end #header -->
+        <!-- begin #sidebar -->
+        <div id="sidebar" class="sidebar">
+            <!-- begin sidebar scrollbar -->
+            <div data-scrollbar="true" data-height="100%">
+                <!-- begin sidebar user -->
+                <ul class="nav">
+                    <li class="nav-profile">
+                        <div class="image">
+                            <a href="javascript:;">
+                                <img src="~/assets/img/user-13.jpg" alt="" />
+                            </a>
+                            <span class="EmpolyName"></span>
+                        </div>
+                        <div class="info">
+                            <small style="margin-bottom:5px; padding-bottom:10PX;" class="EmpolyName"></small>
+                            <small id="rolename" class="RoleName"></small>
+                        </div>
+                    </li>
+                </ul>
+                <!-- end sidebar user -->
+                <!-- begin sidebar nav -->
+                <ul class="nav">
+                    <li class="has-sub">
+                        <a>导航</a>
+                    </li>
+
+
+                    <li class="has-sub">
+                        <a href="javascript:;">
+                            <b class="caret pull-right"></b><i class="fa fa-inbox">
+                            </i><span>校区基础数据</span>
+                        </a>
+                        <ul class="sub-menu">
+                            <li><a href="/SchoolManager/CampusInfo" target="ifaRoom">校区管理</a></li>
+                            <li><a href="/SchoolManager/DeptInfo" target="ifaRoom">部门管理</a></li>
+                            <li><a href="/SchoolManager/RoleInfo" target="ifaRoom">角色管理</a></li>
+                            <li><a href="/SchoolManager/EmpolyInfo" target="ifaRoom">员工管理</a></li>
+                        </ul>
+                    </li>
+
+
+
+                    <li class="has-sub">
+                        <a href="javascript:;">
+                            <b class="caret pull-right"></b><i class="fa fa-suitcase">
+                            </i><span>资产基础数据</span>
+                        </a>
+                        <ul class="sub-menu">
+                            <li><a href="/Property/AreaTypeInfo" target="ifaRoom">区域类别信息管理</a></li>
+                            <li><a href="/Property/AreaInfo" target="ifaRoom">区域信息管理</a></li>
+                        </ul>
+                    </li>
+
+
+
+                    <li class="has-sub">
+                        <a href="/AssetPutManager/Index" target="ifaRoom">
+                            <i class="fa fa-file-o" >
+                            </i><span>资产入库管理</span>
+                        </a>
+                    </li>
+
+                    <li class="has-sub">
+                        <a href="javascript:;">
+                            <b class="caret pull-right"></b><i class="fa fa-star">
+                            </i><span>固定资产管理</span>
+                        </a>
+                        <ul class="sub-menu">
+                            <li><a href="~/Fixed_Assets/AssetsFixedRegister" target="ifaRoom">固定资产使用登记</a></li>
+                            <li><a href="~/Fixed_Assets/AssetsFixedStatistics" target="ifaRoom">固定资产统计</a></li>
+                            <li><a href="~/Fixed_Assets/RepairDetails" target="ifaRoom">明细报损维修</a></li>
+                            <li><a href="~/Fixed_Assets/AssetDetail" target="ifaRoom">明细资产使用管理</a></li>
+                        </ul>
+                    </li>
+
+                    <li class="has-sub">
+                        <a href="javascript:;">
+                            <b class="caret pull-right"></b><i class="fa fa-envelope">
+                            </i><span>办公用品管理</span>
+                        </a>
+                        <ul class="sub-menu">
+                            <li><a href="~/Office_Supplies/Register_office_supplies" target="ifaRoom">办公用品领用</a></li>
+                            <li><a href="~/Office_Supplies/Collection_office_supplies" target="ifaRoom">办公用品审批</a></li>
+                            <li><a href="~/Office_Supplies/Statistics_Office_supplies" target="ifaRoom">办公用品统计</a></li>
+                        </ul>
+                    </li>
+
+
+                    <!-- begin sidebar minify button -->
+                    <li>
+                        <a href="javascript:;" class="sidebar-minify-btn" data-click="sidebar-minify">
+                            <i class="fa fa-angle-double-left"></i>
+                        </a>
+                    </li>
+                    <!-- end sidebar minify button -->
+                </ul>
+                <!-- end sidebar nav -->
+            </div>
+            <!-- end sidebar scrollbar -->
+        </div>
+        <div class="sidebar-bg">
+        </div>
+        <!-- end #sidebar -->
+        <!---------------------------内容部分 ---------------------------------->
+        <div id="content" class="content" style="background-color:white">
+            <iframe src="" id="ifaRoom" name="ifaRoom" frameborder="0" style="width:100%;height:700px"></iframe>
+        </div>
+        <!-- begin scroll to top btn -->
+        <a href="javascript:;" class="btn btn-icon btn-circle btn-success btn-scroll-to-top fade"
+           data-click="scroll-top"><i class="fa fa-angle-up"></i></a>
+        <!-- end scroll to top btn -->
+    </div>
+
+    <!-- 个人信息 模态框（Modal） -->
+
+
+    <div class="modal fade" id="PersonInfo" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog" style="width:30%">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                        &times;
+                    </button>
+                    <h4 class="modal-title" id="myModalLabel">
+                        个人信息
+                    </h4>
+                </div>
+                <div class="modal-body">
+
+                    <table class="table ">
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <span> 个人头像:</span>
+                                </td>
+                                <td>
+                                    <div class="col-sm-9">
+                                        <img style="width:100px;height:100px" id="imgEmpolyImg" class="PersonImg img-circle" src="">
+                                        <br />
+                                        <button type="button" id="btnEmpolyImg" class="btn btn-info">修改头像</button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <span> 员工名称:</span>
+                                </td>
+                                <td>
+                                    <span id="iptEmpolyName"></span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <span> 身份证号:</span>
+                                </td>
+                                <td>
+                                    <span id="lblEmpolyIdCard"></span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <span> 所属部门:</span>
+                                </td>
+                                <td>
+                                    <span id="lblDeptName"></span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <span>岗位级别:</span>
+                                </td>
+                                <td>
+                                    <span id="lblEmpolyLevel"></span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <span>入职时间:</span>
+                                </td>
+                                <td>
+                                    <span id="lblInductionDate"></span>
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td>
+                                    <span>备注:</span>
+                                </td>
+                                <td>
+                                    <textarea class="form-control" rows="3" id="txtEmpolyReMark"></textarea>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">
+                        关闭
+                    </button>
+                    <button type="button" class="btn btn-primary">
+                        保存
+                    </button>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal -->
+    </div>
+
+    <!--修改密码模态框-->
+
+    <div class="modal fade" id="PersonPwd" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog" style="width:30%">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                        &times;
+                    </button>
+                    <h4 class="modal-title" id="myModalLabel">
+                        修改密码
+                    </h4>
+                </div>
+                <div class="modal-body">
+                    <form class="form-horizontal" role="form">
+                        <div class="form-group">
+                            <label for="oldpwd" class="col-sm-3 control-label">旧密码:</label>
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control" id="iptOldPwd" />
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="oldpwd" class="col-sm-3 control-label">新密码:</label>
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control" id="iptNewPwd" placeholder="请输入6位数密码" />
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="oldpwd" class="col-sm-3 control-label">确认密码:</label>
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control" id="iptRelNewPwd" placeholder="再次输入" />
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">
+                        关闭
+                    </button>
+                    <button type="button" class="btn btn-primary" id="btnUpdPwd">
+                        保存
+                    </button>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal -->
+    </div><!-- /.modal -->
+    <!-- end page container -->
+    <!-- ================== BEGIN BASE JS ================== -->
+
+
+    <script src="~/assets/plugins/jquery/jquery-migrate-1.1.0.min.js"></script>
+
+    <script src="~/assets/plugins/jquery-ui/ui/minified/jquery-ui.min.js"></script>
+
+    <script src="~/assets/plugins/bootstrap/js/bootstrap.min.js"></script>
+
+    <!--[if lt IE 9]>
+        <script src="~/assets/crossbrowserjs/html5shiv.js"></script>
+        <script src="~/assets/crossbrowserjs/respond.min.js"></script>
+        <script src="~/assets/crossbrowserjs/excanvas.min.js"></script>
+    <![endif]-->
+
+    <script src="~/assets/plugins/slimscroll/jquery.slimscroll.min.js"></script>
+
+    <script src="~/assets/plugins/jquery-cookie/jquery.cookie.js"></script>
+
+    <!-- ================== END BASE JS ================== -->
+    <!-- ================== BEGIN PAGE LEVEL JS ================== -->
+
+    <script src="~/assets/plugins/morris/raphael.min.js"></script>
+
+    <script src="~/assets/plugins/morris/morris.js"></script>
+
+    <script src="~/assets/plugins/jquery-jvectormap/jquery-jvectormap-1.2.2.min.js"></script>
+
+    <script src="~/assets/plugins/jquery-jvectormap/jquery-jvectormap-world-merc-en.js"></script>
+
+    <script src="~/assets/plugins/bootstrap-calendar/js/bootstrap_calendar.min.js"></script>
+
+    <script src="~/assets/plugins/gritter/js/jquery.gritter.js"></script>
+
+    <script src="~/assets/js/dashboard-v2.min.js"></script>
+
+    <script src="~/assets/js/apps.min.js"></script>
+
+    <!-- ================== END PAGE LEVEL JS ================== -->
+
+    <script>
+        $(document).ready(function () {
+            App.init();
+            DashboardV2.init();
+        });
+        $(".has-sub").click(function () {
+            $(".has-sub").removeClass("active");
+            $(this).addClass("active");
+        })
+    </script>
+
+</body>
+</html>
+
+<script>
+    var levels = ['普通员工', '部门主管', '校区负责人 '];
+
+
+    $(function () {
+        checkLoginStatus();
+
+    })
+
+    function checkLoginStatus() {
+        $.get("/IndexMian/CheckLoginStatus", function (msg) {
+            if (msg == -1) {
+                location.href = "/Login/Login";
+            } else {
+                $(".EmpolyName").text(msg.EmpolyName);
+                $(".RoleName").text(msg.RoleName);
+                SelPersonInfo();
+            }
+        })
+    }
+
+    function SelPersonInfo() {
+        $.ajax({
+            type: 'GET',
+            url: "/IndexMian/SelPersonInfo",//请求地址
+            success: function (msg) {
+                $(".PersonImg").attr("src", "~/assets/img/" + msg.EmpolyImg);
+                $("#iptEmpolyName").text(msg.EmpolyName);
+                $("#lblEmpolyIdCard").text(msg.EmpolyIdCard);
+                $("#lblDeptName").text(msg.DeptName);
+                $("#lblEmpolyLevel").text(levels[msg.EmpolyLevel]);
+                $("#lblInductionDate").text(formatDate(msg.InductionDate, 'yyyy-MM-dd'));
+                $("#lblDepartureDate").text(formatDate(msg.DepartureDate, 'yyyy-MM-dd'));
+                $("#txtEmpolyReMark").text(msg.EmpolyReMark);
+            }
+        })
+    }
+
+    $("#iptRelNewPwd").click(function () {
+        var newpwd = $("#iptNewPwd").val();
+        if (newpwd.length != 6) {
+            reg = /^\d{6}$/;
+            if (!reg.test(newpwd)) {
+                alert("只能是6位数字密码");
+            }
+        }
+    })
+
+    $("#btnUpdPwd").click(function () {
+        var oldpwd = $("#iptOldPwd").val();
+        reg = /^\d{6}$/;
+        var newpwd = $("#iptNewPwd").val();
+        if (!reg.test(newpwd)) {
+            alert("只能是6位数字密码");
+        } else {
+            var newrelpwd = $("#iptRelNewPwd").val();
+            if (newpwd == null || newpwd != newrelpwd || oldpwd == null) {
+                alert("旧密码为空或是新密码有问题请检查");
+            } else {
+                $.ajax({
+                    type: 'POST',
+                    url: "/IndexMian/UpdPersonInfoPwd",//请求地址
+                    data: { oldEmpolypwd: oldpwd, userEmpolyPwd: newpwd },//请求参数
+                    success: function (data) {
+                        if (data == "修改成功") {
+                            alert("修改成功");
+                            Escape();
+                        } else {
+                            alert(data);
+                        }
+                        $("#PersonPwd").modal("hide");
+
+                    }
+                })
+            }
+        }
+
+    })
+
+    function formatDate(val, formatType) {
+        if (val == undefined) {
+            return '';
+        }
+        var reg = /^\/Date\(\d+\)\/$/;
+        if (!reg.test(val)) return '';//格式不正确 ，返回空
+        var strDate = val.substr(1, val.length - 2);
+        var obj = eval('(' + "{ date :new " + strDate + "}" + ')')
+        var date = obj.date;
+        var year = date.getFullYear();
+        var month = date.getMonth() + 1 < 10 ? '0' + (date.getMonth() + 1) : date.getMonth() + 1;
+        var day = date.getDate() < 10 ? '0' + date.getDate() : date.getDate();
+        var datetime = year + '-' + month + '-' + day;
+
+        if (formatType == 'yyyy-MM-dd') {
+            return datetime;
+        } else if (formatType == 'yyyy-MM-dd HH:mm:ss') {
+            var hour = date.getHours() < 10 ? '0' + date.getHours() : date.getHours();
+            var minute = date.getMinutes() < 10 ? '0' + date.getMinutes() : date.getMinutes();
+            var seconds = date.getSeconds() < 10 ? '0' + date.getSeconds() : date.getSeconds();
+            return datetime + ' ' + hour + ':' + minute + ':' + seconds;
+        }
+        return datetime;
+    }
+    function Escape() {
+        $.get("/IndexMian/OutLogin");
+        location.href = "/Login/Login";
+    }
+</script>
+

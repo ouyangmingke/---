@@ -1,0 +1,287 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width" />
+    <title>维修明细</title>
+    <link href="~/Page/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="~/Page/css/bootstrap-table.min.css" rel="stylesheet" />
+    <link href="~/Page/css/bootstrap-datetimepicker.min.css" rel="stylesheet" />
+    <script src="~/Page/jquery-3.4.1.min.js"></script>
+    <script src="~/Page/bootstrap.min.js"></script>
+    <script src="~/Page/bootstrap-table.min.js"></script>
+    <script src="~/Page/bootstrap-table-zh-CN.min.js"></script>
+    <script src="~/Page/bootstrap-datetimepicker.js"></script>
+    <script src="~/Page/bootstrap-datetimepicker.zh-CN.js"></script>
+    <script src="~/Page/Public_scripts.js"></script>
+    <script type="text/javascript">
+        $(function () {
+            $("#tabStu").bootstrapTable({
+                url: "/Fixed_Assets/GetRepairDetails",//请求服务器数据地址
+                cache: true,//禁用ajax数据缓存
+                pagination: true,//打开分页
+                pageList: [5, 10, 15, 20, 30],//设置分页每页显示的行数
+                pageNumber: 1,//默认显示页码数
+                pageSize: 5,//默认设置显示行数
+                striped: true,//设置隔行变色
+                sidePagination: "server",           //分页方式：client客户端分页，server服务端分页（*）
+
+                queryParams: function (parms) {
+                    // 前台向后台传递参数   //参数列表
+                    var temp = { //键值对格式，一般处理程序中，如果要取值一定要与键的名称相同
+                        //页面大小
+                        limit: parms.limit, //每页显示的数量
+                        //需要跳过的数量
+                        offset: parms.offset,// SQL语句起始索引
+                        AssetName: $("#txtName").val(),
+                        RecordState: $(".ADUS :checked").val()
+                    };
+                    return temp;
+                },
+                columns: [
+                    //field:后台绑定数据的字段名   title 表格标题
+                    {
+                        field: '', title: '编号', align: 'center',
+                        formatter: function (vaule, row, index) {
+                            return index + 1;
+                        }
+                    },
+                    { field: 'AssetName', title: '资产名称', align: 'center' },
+                    { field: 'EmpolyName', title: '申请人', align: 'center' },
+                    {
+                        field: 'DamageDate', title: '损坏时间', align: 'center',
+                        formatter: function (vaule, row, index) {
+                            if (row.AssetDetailUseDate != null) return GetTime(row.AssetDetailUseDate);
+                        }
+                    },
+                    { field: 'DamageCauses', title: '损坏原因', align: 'center' },
+                    { field: 'ProblemDescription', title: '问题描述', align: 'center' },
+
+                    {
+                        field: 'RecordState', title: '维修状态', align: 'center',
+                        formatter: function (vaule) {
+                            return vaule == 0 ? '<div class="alert-success">申报中</div>' : '<div class="alert-danger">已处理</div>';
+                        }
+                    },
+
+                    { field: 'DamageRecordReMark', title: '备注', align: 'center' },
+                    {
+                        field: 'DamageRecordId', title: '操作', align: 'center',
+                        formatter: function (vaule) {
+                            return '<button type="button" style="display:inline" class="btn btn-info" data-toggle="modal" data-target="#details"  onclick="Setmodel(' + vaule + ')">查看详情</button>';
+                        }
+                    },
+                ]
+            })
+
+            $('.validation :text').popover({ 'content': "输入文本", placement: 'right', trigger: 'manual' });
+
+        })
+
+        function Setmodel(DamageRecordId) {
+            var spans = $("#detailsTabel span");
+            $.ajax({
+                url: "/Fixed_Assets/GetViewRepairDetails",
+                data: {
+                    DamageRecordId: DamageRecordId
+                },
+                success: function (msg) {
+                    spans.eq(0).text(msg.AssetName);
+                    spans.eq(1).text(msg.DamageCauses);
+                    spans.eq(2).text(msg.ProblemDescription);
+                    spans.eq(3).text(msg.EmpolyName);
+                    spans.eq(4).text(msg.DamageDate == null ? "" : GetTime(msg.DamageDate));
+                    spans.eq(5).text(msg.Repairman);
+                    spans.eq(6).text(msg.RepairDates == null ? "待处理" : GetTime(msg.RepairDates));
+                    if (msg.RecordState == 0) {
+                        spans.eq(7).css('color', 'green');
+                        spans.eq(7).text("申报中");
+                    } else {
+                        spans.eq(7).css('color', 'red')
+                        spans.eq(7).text("已处理");
+                    }
+                    spans.eq(8).text(msg.DamageRecordReMark);
+
+                    $("#img_details").attr('src', "/images/serverimg/temp" + msg.DamageRecordId + ".jpg");
+                }
+            })
+        }
+
+        function AddDamageRecord() {
+            var beginTime = $('#beginTime').val();
+            var DamageCauses = $('#DamageCauses').val();
+            var ProblemDescription = $('#ProblemDescription').val();
+            var imgname = $('#imgname').val();
+            var count = 0;
+            if (beginTime == "") {
+                count++;
+                $('#beginTime').popover('show');
+            }
+            if (ProblemDescription == "") {
+                count++;
+                $('#ProblemDescription').popover('show');
+            }
+            if (imgname == '') {
+                count++;
+                $('#imgname').popover('show');
+            }
+            if (count == 0) {
+                $.ajax({
+                    type: "POST",
+                    url: "/Fixed_Assets/AddDamageRecord",
+                    data: {
+                        AssetDetailId: $("#AssetDetailId").val(),
+                        Imange: $('#imgname').val(),
+                        DamageCauses: DamageCauses,
+                        DamageDate: beginTime,
+                        ProblemDescription: ProblemDescription
+                    },
+                    success: function (msg) {
+                        if (msg > 0) {
+                            Refresh_table();
+                            alert("成功");
+                        } else {
+                            alert("失败");
+                        }
+                    }
+                })
+            } else {
+                setTimeout(function () {
+                    $('.validation :text').popover('hide');
+                }, 3000)
+            }
+        }
+
+        function GetAssetDetailId() {
+
+            $("#ImgShow").attr('src', "");
+            $('#beginTime').val("");
+            $('#DamageCauses').val("");
+            $('#ProblemDescription').val("");
+            $('#imgname').val("");
+            $.get("/Fixed_Assets/GetAssetDetailId", function (msg) {
+                $.each(msg, function (index, temp) {
+                    $('#AssetDetailId').append('<option value="' + temp + '">' + temp + '</option>')
+                })
+            })
+            timemodel('#beginTime', "", "");
+        }
+    </script>
+
+</head>
+<body>
+    <div>
+
+        <div style="margin:10px">
+            资产名称
+            <input id="txtName" class="form-control" style="width:200px;display:inline" />
+            状态：
+            <div class="ADUS" style="display:inline">
+                <label>
+                    <input type="radio" value="0" name="state" />申报中
+                </label>
+                <label>
+                    <input type="radio" value="1" name="state" />已处理
+                </label>
+                <label>
+                    <input type="radio" value="-1" checked="checked" name="state" />全部
+                </label>
+            </div>
+            <button type="button" style="display:inline" class="btn btn-info" onclick="Refresh_table()">查询</button>
+            <button type="button" style="display:inline" class="btn btn-info" data-toggle="modal" data-target="#myModal" onclick="GetAssetDetailId()">申请维修</button>
+        </div>
+        <table id="tabStu">
+        </table>
+
+        <!-- 申请维修 -->
+        <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                            &times;
+                        </button>
+                        <h4 class="modal-title" id="myModalLabel">
+                            申请报修
+                        </h4>
+                    </div>
+                    <div class="modal-body">
+                        <table class="table-condensed validation" style="width:100%;">
+                            <tbody>
+                                <tr><td>明细编号</td><td><select id="AssetDetailId" class="form-control"></select></td></tr>
+                                <tr><td>损坏日期</td><td><input id="beginTime" type="text" placeholder="选择时间" readonly="readonly" class="time form-control"></td></tr>
+                                <tr><td>损坏原因</td><td><input id="DamageCauses" type="text" class="form-control" /></td></tr>
+                                <tr><td>问题描述</td><td> <input id="ProblemDescription" type="text" class="form-control"></td></tr>
+                                <tr>
+                                    <td>图片描述</td>
+                                    <td>
+                                        <img id="ImgShow" width="180">
+                                        <div class="input-group">
+                                            <input id="imgname" readonly="readonly" type="text" class="form-control">
+                                            <span class="input-group-addon glyphicon glyphicon-open-file" style="position: relative;">
+                                                上传头像
+                                                <input type="file" id="imgUpload" class="btn-group-vertical" onchange="imgUpload('#imgUpload','#imgname','#ImgShow')" style="opacity: 0; display: inline; height: 100%; width: 100%; position: absolute; left: 0; top: 0">
+                                            </span>
+                                        </div>
+                                        <!-- /input-group -->
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">
+                            关闭
+                        </button>
+                        <button type="button" class="btn btn-primary" onclick="AddDamageRecord()">
+                            提交
+                        </button>
+                    </div>
+                </div><!-- /.modal-content -->
+            </div><!-- /.modal -->
+        </div>
+
+
+        <!-- 详情 -->
+        <div class="modal fade" id="details" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                            &times;
+                        </button>
+                        <h4 class="modal-title" id="myModalLabel">
+                            查看详情
+                        </h4>
+                    </div>
+                    <div class="modal-body">
+                        <table id="detailsTabel" class="table-condensed" style="width:100%">
+                            <tbody>
+                                <tr><td>资产名称</td><td><span></span></td></tr>
+                                <tr><td>图片描述</td><td><img id="img_details" width="180" alt="图片丢失" /></td></tr>
+                                <tr><td>损坏原因</td><td><span></span></td></tr>
+                                <tr><td>问题描述</td><td><span></span></td></tr>
+                                <tr><td>申报人</td><td> <span></span></td><td>申报时间</td><td> <span></span></td></tr>
+                                <tr><td>维修人</td><td> <span></span></td><td>维修时间</td><td> <span></span></td></tr>
+                                <tr><td>维修状态</td><td><span></span></td></tr>
+                                <tr><td>备注</td><td><span></span></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">
+                            关闭
+                        </button>
+                    </div>
+                </div><!-- /.modal-content -->
+            </div><!-- /.modal -->
+        </div>
+
+    </div>
+</body>
+</html>
